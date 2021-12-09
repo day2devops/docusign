@@ -14,6 +14,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.Arrays;
@@ -77,13 +78,13 @@ public abstract class AbstractController {
     }
 
     @PostMapping
-    public Object create(WorkArguments args, ModelMap model, HttpServletResponse response) {
+    public Object create(WorkArguments args, ModelMap model, HttpServletRequest request, HttpServletResponse response) {
         if (isTokenExpired()) {
             return REDIRECT_AUTHENTICATION_PAGE;
         }
 
         try {
-            return doWork(args, model, response);
+            return doWork(args, model, request, response);
         } catch (Exception exception) {
             return handleException(exception, model);
         }
@@ -119,7 +120,7 @@ public abstract class AbstractController {
      * @throws Exception if calling API has failed or if I/O operation has failed
      */
     protected abstract Object doWork(WorkArguments args, ModelMap model,
-        HttpServletResponse response) throws Exception;
+        HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     private String handleException(Exception exception, ModelMap model) {
         String stackTrace = ExceptionUtils.getStackTrace(exception);

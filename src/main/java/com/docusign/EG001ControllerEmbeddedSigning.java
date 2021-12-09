@@ -8,13 +8,7 @@ import com.docusign.core.model.User;
 import com.docusign.esign.api.EnvelopesApi;
 import com.docusign.esign.client.ApiClient;
 import com.docusign.esign.client.ApiException;
-import com.docusign.esign.model.Document;
-import com.docusign.esign.model.EnvelopeDefinition;
-import com.docusign.esign.model.EnvelopeSummary;
-import com.docusign.esign.model.RecipientViewRequest;
-import com.docusign.esign.model.Recipients;
-import com.docusign.esign.model.Signer;
-import com.docusign.esign.model.ViewUrl;
+import com.docusign.esign.model.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,6 +19,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.io.IOException;
 import java.util.Arrays;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
@@ -57,13 +52,20 @@ public class EG001ControllerEmbeddedSigning extends AbstractEsignatureController
 
     @Override
     protected Object doWork(WorkArguments args, ModelMap model,
-                            HttpServletResponse response) throws ApiException, IOException {
+                            HttpServletRequest request, HttpServletResponse response) throws ApiException, IOException {
         String signerName = args.getSignerName();
         String signerEmail = args.getSignerEmail();
         String accountId = session.getAccountId();
 
+        String executionArn = request.getParameter("executionArn");
+        System.out.println("****************************");
+        System.out.println("From request: " + request.getParameter("executionArn"));
+        System.out.println("From args: " + args.getExecutionArn());
+        System.out.println("****************************");
+
+
         // Step 1. Create the envelope definition
-        EnvelopeDefinition envelope = makeEnvelope(signerEmail, signerName);
+        EnvelopeDefinition envelope = makeEnvelope(signerEmail, signerName, executionArn);
 
         // Step 2. Call DocuSign to create the envelope
         ApiClient apiClient = createApiClient(session.getBasePath(), user.getAccessToken());
@@ -118,7 +120,7 @@ public class EG001ControllerEmbeddedSigning extends AbstractEsignatureController
         return viewRequest;
     }
 
-    private static EnvelopeDefinition makeEnvelope(String signerEmail, String signerName) throws IOException {
+    private static EnvelopeDefinition makeEnvelope(String signerEmail, String signerName, String executionArn) throws IOException {
         // Create a signer recipient to sign the document, identified by name and email
         // We set the clientUserId to enable embedded signing for the recipient
         Signer signer = new Signer();
@@ -140,8 +142,12 @@ public class EG001ControllerEmbeddedSigning extends AbstractEsignatureController
         // Request that the envelope be sent by setting |status| to "sent".
         // To request that the envelope be created as a draft, set to "created"
         envelopeDefinition.setStatus(EnvelopeHelpers.ENVELOPE_STATUS_SENT);
+        envelopeDefinition.setNotificationUri("https://3nwmi3ilvg.execute-api.us-east-2.amazonaws.com/dev/callback");
 
-        envelopeDefinition.setNotificationUri("https://anhs6r31b6.execute-api.us-east-2.amazonaws.com/dev/callback");
+        CustomFields customFields = new CustomFields();
+        customFields.addTextCustomFieldsItem(new TextCustomField()
+                .fieldId("executionArn").name("executionArn").value(executionArn));
+        envelopeDefinition.setCustomFields(customFields);
 
         return envelopeDefinition;
     }

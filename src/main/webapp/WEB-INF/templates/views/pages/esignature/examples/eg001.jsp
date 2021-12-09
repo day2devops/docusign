@@ -34,6 +34,8 @@
                value="${locals.dsConfig.signerName}" required>
     </div>
     <input type="hidden" name="_csrf" value="${csrfToken}">
+    <input type="hidden" name="executionArn" value="${param.executionArn}"/>
+
     <button type="submit" class="btn btn-docu">Submit</button>
 </form>
 

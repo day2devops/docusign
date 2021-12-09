@@ -64,4 +64,5 @@ public class WorkArguments {
     private String eSignProfileId;
     private UUID eSignProductId;
     private UUID dsGroupId;
+    private String executionArn;
 }
