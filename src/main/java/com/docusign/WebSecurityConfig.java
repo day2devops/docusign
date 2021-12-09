@@ -142,7 +142,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http
-            .antMatcher("/**")
+            .antMatcher("/dummy/**")
             .authorizeRequests()
             .antMatchers( "/", "/login**", "/error**", "/assets/**","/ds/mustAuthenticate**",
                 "/ds/authenticate**")

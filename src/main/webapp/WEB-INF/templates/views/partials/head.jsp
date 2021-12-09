@@ -20,38 +20,11 @@
 
 <body>
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand"  target="_blank" href="https://developers.docusign.com">DocuSign Developer</a>
+    <a class="navbar-brand"  target="_blank" href="https://developers.docusign.com">Document Signing</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
             aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-
-    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <c:choose>
-                <c:when test="${locals.user != null}">
-                    <li>
-                        <a class="nav-link" href="/logout" id="logout"
-                           data-busy="href">Logout <span class="sr-only">(current)</span></a>
-                    </li>
-                </c:when>
-                <c:otherwise>
-                    <li>
-                        <a class="nav-link" href="/ds/mustAuthenticate" id="login"
-                           data-busy="href">Login <span class="sr-only">(current)</span></a>
-                    </li>
-                </c:otherwise>
-            </c:choose>
-        </ul>
-        <c:if test="${locals.user != null}">
-           <span class="navbar-text">
-            Welcome ${locals.user.name}
-          </span>
-        </c:if>
-    </div>
 </nav>
 
 

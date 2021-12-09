@@ -56,19 +56,29 @@ public class EG001ControllerEmbeddedSigning extends AbstractEsignatureController
         String signerName = args.getSignerName();
         String signerEmail = args.getSignerEmail();
         String accountId = session.getAccountId();
+        accountId = "5fe81558-e430-4398-af5e-fab120b6f4b8";
+        String basePath = "https://demo.docusign.net/restapi";
 
-        String executionArn = request.getParameter("executionArn");
+        String uuid = request.getParameter("uuid");
         System.out.println("****************************");
-        System.out.println("From request: " + request.getParameter("executionArn"));
-        System.out.println("From args: " + args.getExecutionArn());
+        System.out.println("From request: " + request.getParameter("token"));
+        System.out.println("Account ID: " + accountId);
+        System.out.println("Base Path: " + session.getBasePath());
         System.out.println("****************************");
 
 
         // Step 1. Create the envelope definition
-        EnvelopeDefinition envelope = makeEnvelope(signerEmail, signerName, executionArn);
+        EnvelopeDefinition envelope = makeEnvelope(signerEmail, signerName, uuid);
+
+        System.out.println("#################");
+        System.out.println(user.getAccessToken());
+        System.out.println("#################");
+
+        String staticToken = "eyJ0eXAiOiJNVCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiNjgxODVmZjEtNGU1MS00Y2U5LWFmMWMtNjg5ODEyMjAzMzE3In0.AQsAAAABAAUABwAATvPoRrvZSAgAAI4W94m72UgCAPmJjal9vbVCkuOqmJn_eYMVAAEAAAAYAAEAAAAFAAAADQAkAAAAYTIyNzhkMTktOTQ2NS00OTY0LWEwMjMtYzQ5NjVlODc2OTVlIgAkAAAAYTIyNzhkMTktOTQ2NS00OTY0LWEwMjMtYzQ5NjVlODc2OTVlEgABAAAACwAAAGludGVyYWN0aXZlMACAt1roRrvZSDcAwA5jptAqS0Wl6WiqqiI3tA.OLMywy2OHtADQJgC8xTEC2laVSNeLoM53S8y7PDzebdeRPAscVj8IZ_YJ83ETo-xAOHWp7OR-adtBHTTZgNjvnisOhSY94GRqoCUoYQPsjo_wJ6Nqsll8UzNk0RO5BxZUP9Gg-kWBaIGKRSxEa2mHlwVQ-pZNT7bA7eC234i6h85uCvxKQhYruSmdtgRbx8Uq-hD-U2_oYffZ1A2Npkvor-0HzADTl-SpgXVB1pWKfmxMxNpehyN8-yB2vyWcbedsNW0Y8LTgjuKEfSctSuVv6O6hvTvgkfMHSkKKAjNIY4XRLyjZchSK9Ilna7oRbpwDwEaSBUsdi4Nk7At5ou9tw";
+        //staticToken = System.getenv("access_token");
 
         // Step 2. Call DocuSign to create the envelope
-        ApiClient apiClient = createApiClient(session.getBasePath(), user.getAccessToken());
+        ApiClient apiClient = createApiClient(basePath, staticToken);
         EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
         EnvelopeSummary envelopeSummary = envelopesApi.createEnvelope(accountId, envelope);
 
@@ -95,7 +105,7 @@ public class EG001ControllerEmbeddedSigning extends AbstractEsignatureController
         // the DocuSign signing. It's usually better to use
         // the session mechanism of your web framework. Query parameters
         // can be changed/spoofed very easily.
-        viewRequest.setReturnUrl(config.getDsReturnUrl() + "?state=123");
+        viewRequest.setReturnUrl("http://localhost:8282/tasks");
 
         // How has your app authenticated the user? In addition to your app's
         // authentication, you can include authenticate steps from DocuSign.
@@ -120,7 +130,7 @@ public class EG001ControllerEmbeddedSigning extends AbstractEsignatureController
         return viewRequest;
     }
 
-    private static EnvelopeDefinition makeEnvelope(String signerEmail, String signerName, String executionArn) throws IOException {
+    private static EnvelopeDefinition makeEnvelope(String signerEmail, String signerName, String uuid) throws IOException {
         // Create a signer recipient to sign the document, identified by name and email
         // We set the clientUserId to enable embedded signing for the recipient
         Signer signer = new Signer();
@@ -145,8 +155,9 @@ public class EG001ControllerEmbeddedSigning extends AbstractEsignatureController
         envelopeDefinition.setNotificationUri("https://3nwmi3ilvg.execute-api.us-east-2.amazonaws.com/dev/callback");
 
         CustomFields customFields = new CustomFields();
+
         customFields.addTextCustomFieldsItem(new TextCustomField()
-                .fieldId("executionArn").name("executionArn").value(executionArn));
+                .fieldId("uuid").name("uuid").value(uuid));
         envelopeDefinition.setCustomFields(customFields);
 
         return envelopeDefinition;

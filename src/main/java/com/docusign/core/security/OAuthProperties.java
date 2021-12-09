@@ -11,6 +11,9 @@ public class OAuthProperties extends OAuth2SsoProperties {
     private String redirectUrl;
 
     public String getLoginPath() {
+        System.out.println("***********************");
+        System.out.println(super.getLoginPath() + redirectUrl);
+        System.out.println("***********************");
         return super.getLoginPath() + redirectUrl;
     }
 }
